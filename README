@@ -1,6 +1,10 @@
 cderpm
 ======
 
+This is my own fork of zssfred/cderpm
+
+I do not intend to support distro that has reached EOL.
+
 RPM spec file, patches, and scripts to package up the Common Desktop
 Environment.
 
@@ -18,13 +22,10 @@ systems.
 TARGET PLATFORMS
 ----------------
 
-Red Hat Enterprise Linux 7 (x86_64)
-Red Hat Enterprise Linux 6 (x86_64)
-CentOS 7 (x86_64)
-CentOS 6 (x86_64)
-Fedora 27 (x86_64)
-Fedora 28 (x86_64)
-Fedora rawhide (x86_64)
+Red Hat Enterprise Linux 8 (x86_64, ppc64le)
+Red Hat Enterprise Linux 9 (x86_64, ppc64le)
+Fedora 35 (x86_64, ppc64le)
+Fedora 36 (x86_64, ppc64le)
 
 I may not have all platforms building at a given time, which is why I refer to
 them as targets rather than requirements.  I'm always interested in patches to
@@ -34,21 +35,13 @@ get things building and packaging on other Red Hat-derived distributions.
 AVAILABILITY
 ------------
 
-Builds are done using the COPR infrastructure in the Fedora Project.  Users
-of RHEL, CentOS, and Fedora can enable the 'cde' copr repository and then
-install the 'cde' package using yum or dnf:
-
-    dnf copr enable dcantrel/cde
-    dnf install cde
-
-Older systems using yum may have slightly different steps to enable the
-repo.  If you figure that out, please let me know so I can add it to the
-README file.
+TBU - at this stage, I have not built nor published any RPM that could be consumed yet
 
 
 AUTHORS
 -------
 
+Trung Lê <trung.le@ruby-journal.com>
 David Cantrell <dcantrell@redhat.com>
 
 
