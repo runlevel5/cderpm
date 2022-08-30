@@ -19,17 +19,9 @@
 %define _distribution epel
 %endif
 
-%if "%{?distsuffix:%{distsuffix}}%{!?distsuffix:0}" == "pclos"
-%define _distribution pclos
-%endif
-
 Name:                cde
-Version:             2.3.2
-%if "%{_distribution}" == "pclos"
-Release:             %mkrel 3
-%else
+Version:             2.5.0a
 Release:             3%{?dist}
-%endif
 Summary:             Common Desktop Environment
 
 Group:               User Interface/Desktops
@@ -50,8 +42,6 @@ Source6:             cde.desktop
 Source7:             fonts.alias
 Source8:             fonts.dir
 Source9:             dtlogin.service
-
-Patch0:              cde-2.3.2-glibc-2.33.patch
 
 BuildRoot:           %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 
@@ -75,15 +65,6 @@ Requires:            xorg-x11-fonts-ISO8859-15-100dpi
 Requires:            xorg-x11-fonts-100dpi
 Requires:            xorg-x11-fonts-misc
 %endif
-%if "%{_distribution}" == "pclos"
-Requires:            xinit
-Requires:            xset
-Requires:            bdftopcf
-Requires:            x11-server-xorg
-Requires:            x11-font-misc
-# for dtterm terminfo definition
-Requires:            ncurses-extraterms
-%endif
 Requires:            ncompress
 Requires:            rpcbind
 
@@ -94,15 +75,7 @@ BuildRequires:       xorg-x11-proto-devel
 BuildRequires:       motif-devel
 BuildRequires:       systemd
 %endif
-%if 0%{?rhel} <= 6
-BuildRequires:       openmotif-devel
-%endif
 BuildRequires:       patchelf
-%endif
-%if "%{_distribution}" == "pclos"
-BuildRequires:       x11-proto-devel
-BuildRequires:       lib64openmotif4
-BuildRequires:       lib64openmotif4-devel
 %endif
 BuildRequires:       bdftopcf
 BuildRequires:       file
@@ -130,24 +103,6 @@ BuildRequires:       xorg-x11-xbitmaps
 BuildRequires:       libXdmcp-devel
 BuildRequires:       libtirpc-devel
 %endif
-%if "%{_distribution}" == "pclos"
-BuildRequires:       lib64xp-devel
-BuildRequires:       lib64xt-devel
-BuildRequires:       lib64xmu-devel
-BuildRequires:       lib64xft-devel
-BuildRequires:       lib64xinerama-devel
-BuildRequires:       lib64xpm-devel
-BuildRequires:       lib64xaw-devel
-BuildRequires:       lib64x11-devel
-BuildRequires:       lib64xscrnsaver-devel
-BuildRequires:       lib64jpeg-devel
-BuildRequires:       lib64freetype6-devel
-BuildRequires:       lib64openssl-devel
-BuildRequires:       lib64tcl-devel
-BuildRequires:       x11-data-bitmaps
-BuildRequires:       lib64xdmcp-devel
-BuildRequires:       lib64tirpc-devel
-%endif
 BuildRequires:       ncurses
 
 # /usr/bin/rpcgen exists in glibc-common in older releases, otherwise we
@@ -161,7 +116,6 @@ CDE is the Common Desktop Environment from The Open Group.
 
 %prep
 %setup -q
-%patch0 -p1
 
 sed -i -e '1i #define FILE_MAP_OPTIMIZE' programs/dtfile/Utils.c
 
@@ -310,6 +264,10 @@ rm -rf $TMPDIR
 %endif
 
 %changelog
+* Wed Aug 30 2022 Trung Le <trung.le@ruby-journal.com> - 2.5.0a-2
+- Upgrade to CDE 2.5.0a
+- Remove support for RHEL v6 or older
+
 * Wed Aug 22 2018 David Cantrell <dcantrell@redhat.com> - 2.3.0-2
 - Conditionalize the BR on rpcgen for only recent systems
 
