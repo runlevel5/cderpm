@@ -215,6 +215,24 @@ rm -rf $TMPDIR
 %config %{_sysconfdir}/xinetd.d/ttdbserver
 %config %{_sysconfdir}/dt/config/xfonts/C/fonts.alias
 %config %{_sysconfdir}/dt/config/xfonts/C/fonts.dir
+%config %{_sysconfdir}/cde/fontaliases/fonts.alias
+%docdir %{_mandir}/man1
+%docdir %{_mandir}/man1n
+%docdir %{_mandir}/man3
+%docdir %{_mandir}/man4
+%docdir %{_mandir}/man5
+%docdir %{_mandir}/man6
+%{_datadir}/cde/*
+%{_libexecdir}/cde/*
+%{_libdir}/*
+%dir %{_includedir}/Dt
+%dir %{_includedir}/Tt
+%dir %{_includedir}/csa
+%{_bindir}/*
+%config %{_prefix}/app-defaults/C/Dtbuilder
+%dir %{_prefix}/lib/debug
+
+
 %{_datadir}/xsessions
 %{_datadir}/terminfo
 %{_unitdir}/dtlogin.service
