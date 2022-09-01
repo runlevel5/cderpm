@@ -4,18 +4,8 @@
 
 %global _prefix /usr/dt
 
-%ifarch x86_64
-%define _archflag -m64
-%endif
-
-%ifarch %{ix86}
-%define _archflag -m32
-%endif
-
-# Set a macro to use for distribution variances
-%if 0%{?fedora}
-%define _distribution fedora
-%endif
+# Uncomment for building unreleased version from git
+%define _git 1d451e0e2
 
 Name:                cde
 Version:             2.5.0a
@@ -30,7 +20,11 @@ URL:                 http://cdesktopenv.sourceforge.net/
 # Source repo can be cloned this way:
 #     git clone git://git.code.sf.net/p/cdesktopenv/code cdesktopenv-code
 # The checkout-cde.sh generates the source archives used by this spec file.
+%if %{defined _git}
+Source0:             %{name}-git-%{_git}.tar.gz
+%else
 Source0:             %{name}-%{version}.tar.gz
+%endif
 Source1:             checkout-cde.sh
 Source2:             dt.conf
 Source3:             dt.sh

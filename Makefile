@@ -12,8 +12,7 @@ VERSION = $(shell grep Version: cde.spec | awk '{ print $$2; }')
 RELEASE = $(shell grep Release: cde.spec | awk '{ print $$2; }' | cut -d '%' -f 1)
 ARCH = $(shell uname -m)
 
-all: fetch
-	$(RPMBUILD) -ba cde.spec
+all: fetch build
 
 # This could be improved from any of my other projects.
 fetch:
@@ -41,6 +40,8 @@ fetch:
 	done < $(CWD)/sources
 
 # Local RPM building right here in this directory
+build:
+	$(RPMBUILD) -ba cde.spec
 prep:
 	$(RPMBUILD) -bp cde.spec
 
