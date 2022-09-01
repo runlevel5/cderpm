@@ -2,6 +2,8 @@
 # See https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
 %global __brp_check_rpaths %{nil}
 
+%global _prefix /usr/dt
+
 %ifarch x86_64
 %define _archflag -m64
 %endif
@@ -13,14 +15,6 @@
 # Set a macro to use for distribution variances
 %if 0%{?fedora}
 %define _distribution fedora
-%endif
-
-%if 0%{?rhel}
-%define _distribution rhel
-%endif
-
-%if 0%{?epel}
-%define _distribution epel
 %endif
 
 Name:                cde
@@ -47,18 +41,12 @@ Source7:             fonts.alias
 Source8:             fonts.dir
 Source9:             dtlogin.service
 
+AutoReqProv:         no
 BuildRoot:           %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 
 Requires:            xinetd
-Requires:            ksh
-%if "%{_distribution}" == "fedora"
 Requires:            xstdcmap
 Requires:            ( xorg-x11-utils or xdpyinfo or xwininfo or xvinfo or xprop or xlsfonts or xlsclients or xlsatoms or xev )
-%else
-Requires:            xorg-x11-server-utils
-Requires:            xorg-x11-utils
-%endif
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
 Requires:            xorg-x11-xinit
 Requires:            xorg-x11-server-Xorg
 Requires:            xorg-x11-fonts-ISO8859-1-100dpi
@@ -68,18 +56,12 @@ Requires:            xorg-x11-fonts-ISO8859-14-100dpi
 Requires:            xorg-x11-fonts-ISO8859-15-100dpi
 Requires:            xorg-x11-fonts-100dpi
 Requires:            xorg-x11-fonts-misc
-%endif
 Requires:            ncompress
 Requires:            rpcbind
-
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
 BuildRequires:       xorg-x11-proto-devel
-%if 0%{?rhel} >= 7
 %{?systemd_requires}
 BuildRequires:       motif-devel
 BuildRequires:       systemd
-%endif
-%endif
 BuildRequires:       bdftopcf
 BuildRequires:       file
 BuildRequires:       ksh
@@ -90,7 +72,6 @@ BuildRequires:       byacc
 BuildRequires:       gcc
 BuildRequires:       gcc-c++
 BuildRequires:       g++
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
 BuildRequires:       libXp-devel
 BuildRequires:       libXt-devel
 BuildRequires:       libXmu-devel
@@ -108,7 +89,6 @@ BuildRequires:       tcl-devel
 BuildRequires:       xorg-x11-xbitmaps
 BuildRequires:       libXdmcp-devel
 BuildRequires:       libtirpc-devel
-%endif
 BuildRequires:       ncurses
 BuildRequires:       rpcgen
 BuildRequires:       mkfontdir
@@ -135,8 +115,6 @@ export MAKEFLAGS="-j$(nproc)"
 %make_build
 
 %install
-mkdir -pm 0755 %{buildroot}%{_prefix}/dt/bin
-mkdir -pm 0755 %{buildroot}%{_localstatedir}/dt
 %make_install
 
 # Configuration files
@@ -165,7 +143,7 @@ rm -rf %{buildroot}
 # Specific permissions required on some things
 chmod 2555 %{_bindir}/dtmail
 
-PATH=/bin:/usr/bin
+PATH=/bin:/usr/bin/
 
 # Add 'dtspc' line to /etc/services
 grep -qE "^dtspc" /etc/services >/dev/null 2>&1
@@ -204,8 +182,7 @@ rm -rf $TMPDIR
 %files
 %defattr(-,root,root,-)
 %doc CONTRIBUTORS COPYING README.md copyright HISTORY
-%{_prefix}/dt
-%attr(1777, root, root) %{_localstatedir}/dt
+%{_prefix}
 %config %{_sysconfdir}/ld.so.conf.d/dt.conf
 %config %{_sysconfdir}/profile.d/dt.sh
 %config %{_sysconfdir}/profile.d/dt.csh
@@ -216,16 +193,6 @@ rm -rf $TMPDIR
 %config %{_sysconfdir}/dt/config/xfonts/C/fonts.alias
 %config %{_sysconfdir}/dt/config/xfonts/C/fonts.dir
 %config %{_sysconfdir}/cde/fontaliases/fonts.alias
-%{_mandir}/**/*.gz
-%{_datadir}/cde/*
-%{_libexecdir}/cde/*
-%{_libdir}/*
-%{_includedir}/**/*
-%{_bindir}/*
-%config %{_prefix}/app-defaults/C/Dtbuilder
-%dir %{_prefix}/lib/debug
-
-
 %{_datadir}/xsessions
 %{_datadir}/terminfo
 %{_unitdir}/dtlogin.service
@@ -233,7 +200,7 @@ rm -rf $TMPDIR
 %changelog
 * Tue Aug 30 2022 Trung Le <trung.le@ruby-journal.com> - 2.5.0a-0
 - Upgrade to CDE 2.5.0a
-- Remove support for RHEL v6 or older
+- Remove support for RHEL
 - Remove support for CentOS
 - Remove support for Fedora 34 or older
 

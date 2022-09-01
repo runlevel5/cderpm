@@ -1,7 +1,8 @@
-cderpm
-======
+Common Desktop Environment (CDE) RPM for Fedora
+===============================================
 
-This is my own fork of zssfred/cderpm
+This is my own fork of zssfred/cderpm which focuses
+on supporting only Fedora Linux
 
 I do not intend to support distro that has reached EOL.
 
@@ -22,8 +23,6 @@ systems.
 TARGET PLATFORMS
 ----------------
 
-Red Hat Enterprise Linux 8 (x86_64, ppc64le)
-Red Hat Enterprise Linux 9 (x86_64, ppc64le)
 Fedora 35 (x86_64, ppc64le)
 Fedora 36 (x86_64, ppc64le)
 
