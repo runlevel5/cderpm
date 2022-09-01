@@ -36,10 +36,9 @@ Source2:             dt.conf
 Source3:             dt.sh
 Source4:             dt.csh
 Source5:             dtspc
-Source6:             cde.desktop
-Source7:             fonts.alias
-Source8:             fonts.dir
-Source9:             dtlogin.service
+Source6:             fonts.alias
+Source7:             fonts.dir
+Source8:             dtlogin.service
 
 AutoReqProv:         no
 BuildRoot:           %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
@@ -124,10 +123,10 @@ export MAKEFLAGS="-j$(nproc)"
 %{__install} -D -m 0600 contrib/xinetd/ttdbserver %{buildroot}%{_sysconfdir}/xinetd.d/ttdbserver
 %{__install} -D -m 0600 contrib/xinetd/cmsd %{buildroot}%{_sysconfdir}/xinetd.d/cmsd
 %{__install} -D -m 0600 %SOURCE5 %{buildroot}%{_sysconfdir}/xinetd.d/dtspc
-%{__install} -D -m 0644 %SOURCE6 %{buildroot}%{_datadir}/xsessions/cde.desktop
-%{__install} -D -m 0644 %SOURCE7 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.alias
-%{__install} -D -m 0644 %SOURCE8 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.dir
-%{__install} -D -m 0644 %SOURCE9 %{buildroot}%{_unitdir}/dtlogin.service
+%{__install} -D -m 0644 contribe/desktopentry/cde.desktop %{buildroot}%{_datadir}/xsessions/cde.desktop
+%{__install} -D -m 0644 %SOURCE6 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.alias
+%{__install} -D -m 0644 %SOURCE7 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.dir
+%{__install} -D -m 0644 %SOURCE8 %{buildroot}%{_unitdir}/dtlogin.service
 
 # Create terminfo file for dtterm
 pushd programs/dtterm
@@ -190,8 +189,6 @@ rm -rf $TMPDIR
 %config %{_sysconfdir}/xinetd.d/cmsd
 %config %{_sysconfdir}/xinetd.d/dtspc
 %config %{_sysconfdir}/xinetd.d/ttdbserver
-%config %{_sysconfdir}/dt/config/xfonts/C/fonts.alias
-%config %{_sysconfdir}/dt/config/xfonts/C/fonts.dir
 %config %{_sysconfdir}/cde/fontaliases/fonts.alias
 %{_datadir}/xsessions
 %{_datadir}/terminfo
