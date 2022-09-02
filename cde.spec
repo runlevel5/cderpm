@@ -25,14 +25,13 @@ Source0:             %{name}-git-%{_git}.tar.gz
 %else
 Source0:             %{name}-%{version}.tar.gz
 %endif
-Source1:             checkout-cde.sh
-Source2:             dt.conf
-Source3:             dt.sh
-Source4:             dt.csh
-Source5:             dtspc
-Source6:             fonts.alias
-Source7:             fonts.dir
-Source8:             dtlogin.service
+Source1:             dt.conf
+Source2:             dt.sh
+Source3:             dt.csh
+Source4:             dtspc
+Source5:             fonts.alias
+Source6:             fonts.dir
+Source7:             dtlogin.service
 
 AutoReqProv:         no
 BuildRoot:           %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
@@ -111,16 +110,16 @@ export MAKEFLAGS="-j$(nproc)"
 %make_install
 
 # Configuration files
-%{__install} -D -m 0644 %SOURCE2 %{buildroot}%{_sysconfdir}/ld.so.conf.d/dt.conf
-%{__install} -D -m 0755 %SOURCE3 %{buildroot}%{_sysconfdir}/profile.d/dt.sh
-%{__install} -D -m 0755 %SOURCE4 %{buildroot}%{_sysconfdir}/profile.d/dt.csh
+%{__install} -D -m 0644 %SOURCE1 %{buildroot}%{_sysconfdir}/ld.so.conf.d/dt.conf
+%{__install} -D -m 0755 %SOURCE2 %{buildroot}%{_sysconfdir}/profile.d/dt.sh
+%{__install} -D -m 0755 %SOURCE3 %{buildroot}%{_sysconfdir}/profile.d/dt.csh
 %{__install} -D -m 0600 contrib/xinetd/ttdbserver %{buildroot}%{_sysconfdir}/xinetd.d/ttdbserver
 %{__install} -D -m 0600 contrib/xinetd/cmsd %{buildroot}%{_sysconfdir}/xinetd.d/cmsd
-%{__install} -D -m 0600 %SOURCE5 %{buildroot}%{_sysconfdir}/xinetd.d/dtspc
-%{__install} -D -m 0644 contribe/desktopentry/cde.desktop %{buildroot}%{_datadir}/xsessions/cde.desktop
-%{__install} -D -m 0644 %SOURCE6 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.alias
-%{__install} -D -m 0644 %SOURCE7 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.dir
-%{__install} -D -m 0644 %SOURCE8 %{buildroot}%{_unitdir}/dtlogin.service
+%{__install} -D -m 0600 %SOURCE4 %{buildroot}%{_sysconfdir}/xinetd.d/dtspc
+%{__install} -D -m 0644 contrib/desktopentry/cde.desktop %{buildroot}%{_datadir}/xsessions/cde.desktop
+%{__install} -D -m 0644 %SOURCE5 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.alias
+%{__install} -D -m 0644 %SOURCE6 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.dir
+%{__install} -D -m 0644 %SOURCE7 %{buildroot}%{_unitdir}/dtlogin.service
 
 # Create terminfo file for dtterm
 pushd programs/dtterm
@@ -174,9 +173,20 @@ fi
 rm -rf $TMPDIR
 
 %files
+%exclude %dir %{_prefix}/lib/.build-id
 %defattr(-,root,root,-)
 %doc CONTRIBUTORS COPYING README.md copyright HISTORY
-%{_prefix}
+%dir %{_prefix}/app-defaults
+%dir %{_prefix}/appconfig
+%dir %{_prefix}/config
+%dir %{_prefix}/infolib
+%dir %{_bindir}
+%dir %{_includedir}
+%dir %{_libexecdir}
+%dir %{_libdir}
+%dir %{_exec_prefix}/lib
+%{_prefix}/palettes
+%dir %{_datadir}
 %config %{_sysconfdir}/ld.so.conf.d/dt.conf
 %config %{_sysconfdir}/profile.d/dt.sh
 %config %{_sysconfdir}/profile.d/dt.csh
@@ -185,8 +195,6 @@ rm -rf $TMPDIR
 %config %{_sysconfdir}/xinetd.d/dtspc
 %config %{_sysconfdir}/xinetd.d/ttdbserver
 %config %{_sysconfdir}/cde/fontaliases/fonts.alias
-%{_datadir}/xsessions
-%{_datadir}/terminfo
 %{_unitdir}/dtlogin.service
 
 %changelog
