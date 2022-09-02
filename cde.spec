@@ -135,6 +135,7 @@ rm -rf %{buildroot}
 %post
 # Specific permissions required on some things
 chmod 2555 %{_bindir}/dtmail
+chmod 2555 %{_bindir}/dtterm
 
 PATH=/bin:/usr/bin/
 
