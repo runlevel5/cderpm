@@ -1,35 +1,15 @@
-%ifarch x86_64
-%define _archflag -m64
-%endif
+# Disable rpath check
+# See https://fedoraproject.org/wiki/Changes/Broken_RPATH_will_fail_rpmbuild
+%global __brp_check_rpaths %{nil}
 
-%ifarch %{ix86}
-%define _archflag -m32
-%endif
+%global _prefix /usr/dt
 
-# Set a macro to use for distribution variances
-%if 0%{?fedora}
-%define _distribution fedora
-%endif
-
-%if 0%{?rhel}
-%define _distribution rhel
-%endif
-
-%if 0%{?epel}
-%define _distribution epel
-%endif
-
-%if "%{?distsuffix:%{distsuffix}}%{!?distsuffix:0}" == "pclos"
-%define _distribution pclos
-%endif
+# Uncomment for building unreleased version from git
+%define _git 1d451e0e2
 
 Name:                cde
-Version:             2.3.2
-%if "%{_distribution}" == "pclos"
-Release:             %mkrel 3
-%else
-Release:             3%{?dist}
-%endif
+Version:             2.5.0a
+Release:             0%{?dist}
 Summary:             Common Desktop Environment
 
 Group:               User Interface/Desktops
@@ -40,31 +20,25 @@ URL:                 http://cdesktopenv.sourceforge.net/
 # Source repo can be cloned this way:
 #     git clone git://git.code.sf.net/p/cdesktopenv/code cdesktopenv-code
 # The checkout-cde.sh generates the source archives used by this spec file.
+%if %{defined _git}
+Source0:             %{name}-git-%{_git}.tar.gz
+%else
 Source0:             %{name}-%{version}.tar.gz
-Source1:             checkout-cde.sh
-Source2:             dt.conf
-Source3:             dt.sh
-Source4:             dt.csh
-Source5:             dtspc
-Source6:             cde.desktop
-Source7:             fonts.alias
-Source8:             fonts.dir
-Source9:             dtlogin.service
+%endif
+Source1:             dt.conf
+Source2:             dt.sh
+Source3:             dt.csh
+Source4:             dtspc
+Source5:             fonts.alias
+Source6:             fonts.dir
+Source7:             dtlogin.service
 
-Patch0:              cde-2.3.2-glibc-2.33.patch
-
+AutoReqProv:         no
 BuildRoot:           %{_tmppath}/%{name}-%{version}-%{release}-root-%(id -u -n)
 
 Requires:            xinetd
-Requires:            ksh
-%if "%{_distribution}" == "fedora"
 Requires:            xstdcmap
 Requires:            ( xorg-x11-utils or xdpyinfo or xwininfo or xvinfo or xprop or xlsfonts or xlsclients or xlsatoms or xev )
-%else
-Requires:            xorg-x11-server-utils
-Requires:            xorg-x11-utils
-%endif
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
 Requires:            xorg-x11-xinit
 Requires:            xorg-x11-server-Xorg
 Requires:            xorg-x11-fonts-ISO8859-1-100dpi
@@ -74,36 +48,12 @@ Requires:            xorg-x11-fonts-ISO8859-14-100dpi
 Requires:            xorg-x11-fonts-ISO8859-15-100dpi
 Requires:            xorg-x11-fonts-100dpi
 Requires:            xorg-x11-fonts-misc
-%endif
-%if "%{_distribution}" == "pclos"
-Requires:            xinit
-Requires:            xset
-Requires:            bdftopcf
-Requires:            x11-server-xorg
-Requires:            x11-font-misc
-# for dtterm terminfo definition
-Requires:            ncurses-extraterms
-%endif
 Requires:            ncompress
 Requires:            rpcbind
-
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
 BuildRequires:       xorg-x11-proto-devel
-%if 0%{?rhel} >= 7
 %{?systemd_requires}
 BuildRequires:       motif-devel
 BuildRequires:       systemd
-%endif
-%if 0%{?rhel} <= 6
-BuildRequires:       openmotif-devel
-%endif
-BuildRequires:       patchelf
-%endif
-%if "%{_distribution}" == "pclos"
-BuildRequires:       x11-proto-devel
-BuildRequires:       lib64openmotif4
-BuildRequires:       lib64openmotif4-devel
-%endif
 BuildRequires:       bdftopcf
 BuildRequires:       file
 BuildRequires:       ksh
@@ -111,8 +61,9 @@ BuildRequires:       m4
 BuildRequires:       ncompress
 BuildRequires:       bison
 BuildRequires:       byacc
+BuildRequires:       gcc
 BuildRequires:       gcc-c++
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
+BuildRequires:       g++
 BuildRequires:       libXp-devel
 BuildRequires:       libXt-devel
 BuildRequires:       libXmu-devel
@@ -123,114 +74,69 @@ BuildRequires:       libXaw-devel
 BuildRequires:       libX11-devel
 BuildRequires:       libXScrnSaver-devel
 BuildRequires:       libjpeg-turbo-devel
+BuildRequires:       libntirpc-devel
 BuildRequires:       freetype-devel
 BuildRequires:       openssl-devel
 BuildRequires:       tcl-devel
 BuildRequires:       xorg-x11-xbitmaps
 BuildRequires:       libXdmcp-devel
 BuildRequires:       libtirpc-devel
-%endif
-%if "%{_distribution}" == "pclos"
-BuildRequires:       lib64xp-devel
-BuildRequires:       lib64xt-devel
-BuildRequires:       lib64xmu-devel
-BuildRequires:       lib64xft-devel
-BuildRequires:       lib64xinerama-devel
-BuildRequires:       lib64xpm-devel
-BuildRequires:       lib64xaw-devel
-BuildRequires:       lib64x11-devel
-BuildRequires:       lib64xscrnsaver-devel
-BuildRequires:       lib64jpeg-devel
-BuildRequires:       lib64freetype6-devel
-BuildRequires:       lib64openssl-devel
-BuildRequires:       lib64tcl-devel
-BuildRequires:       x11-data-bitmaps
-BuildRequires:       lib64xdmcp-devel
-BuildRequires:       lib64tirpc-devel
-%endif
 BuildRequires:       ncurses
-
-# /usr/bin/rpcgen exists in glibc-common in older releases, otherwise we
-# have to explicitly pull in the rpcgen package
-%if 0%{?rhel} > 7 || 0%{?fedora} > 27
 BuildRequires:       rpcgen
-%endif
+BuildRequires:       mkfontdir
+BuildRequires:       perl-SGMLSpm
+BuildRequires:       xrdb
+BuildRequires:       flex
+# deps for autogen.sh
+BuildRequires:       make
+BuildRequires:       autoconf
+BuildRequires:       automake
+BuildRequires:       libtool
 
 %description
 CDE is the Common Desktop Environment from The Open Group.
 
 %prep
-%setup -q
-%patch0 -p1
-
+%autosetup -p1
 sed -i -e '1i #define FILE_MAP_OPTIMIZE' programs/dtfile/Utils.c
 
-echo "#define KornShell /bin/ksh" >> config/cf/site.def
-echo "#define CppCmd cpp" >> config/cf/site.def
-echo "#define YaccCmd bison -y" >> config/cf/site.def
-echo "#define HasZlib YES" >> config/cf/site.def
-echo "#define DtLocalesToBuild" >> config/cf/site.def
-echo "#define RegisterRPC" >> config/cf/site.def
-
 %build
-export LANG=C
-export LC_ALL=C
-export IMAKECPP=cpp
-%{__make} World BOOTSTRAPCFLAGS="%{optflags} %{_archflag}"
-sed -i -e 's:mkProd -D :&%{buildroot}:' admin/IntegTools/dbTools/installCDE
+./autogen.sh
+%configure --disable-rpath
+export MAKEFLAGS="-j$(nproc)"
+%make_build
 
 %install
-srcdir="$(pwd)"
-export LANG=C
-export LC_ALL=C
-./admin/IntegTools/dbTools/installCDE -s "$srcdir" -pseudo -pI "%{buildroot}%{_prefix}/dt" -pV "%{buildroot}%{_localstatedir}/dt" -pC "%{buildroot}%{_sysconfdir}/dt" -destdir "%{buildroot}"
-
-%if "%{_distribution}" == "fedora" || "%{_distributon}" == "rhel" || "%{_distribution}" == "epel"
-# Remove the rpath setting from ELF objects.
-# XXX: This is a heavy hammer which should really be fixed by not using -rpath
-# in the build in the first place.  Baby steps.
-find %{buildroot}%{_prefix}/dt -type f | while read infile ; do
-    typ="$(file -b --mime-type $infile)"
-    if [ "$typ" = "application/x-executable" ] || [ "$typ" = "application/x-sharedlib" ]; then
-        rpath="$(patchelf --print-rpath $infile >/dev/null 2>&1)"
-        [ -z "$rpath" ] || patchelf --remove-rpath $infile
-    fi
-done
-%endif
-
-# Specific permissions required on some things
-chmod 2555 %{buildroot}%{_prefix}/dt/bin/dtmail
+%make_install
 
 # Configuration files
-install -D -m 0644 %SOURCE2 %{buildroot}%{_sysconfdir}/ld.so.conf.d/dt.conf
-install -D -m 0755 %SOURCE3 %{buildroot}%{_sysconfdir}/profile.d/dt.sh
-install -D -m 0755 %SOURCE4 %{buildroot}%{_sysconfdir}/profile.d/dt.csh
-install -D -m 0600 contrib/xinetd/ttdbserver %{buildroot}%{_sysconfdir}/xinetd.d/ttdbserver
-install -D -m 0600 contrib/xinetd/cmsd %{buildroot}%{_sysconfdir}/xinetd.d/cmsd
-install -D -m 0600 %SOURCE5 %{buildroot}%{_sysconfdir}/xinetd.d/dtspc
-install -D -m 0644 %SOURCE6 %{buildroot}%{_datadir}/xsessions/cde.desktop
-install -D -m 0644 %SOURCE7 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.alias
-install -D -m 0644 %SOURCE8 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.dir
-
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
-# Install systemd unit file on applicable systems
-%if 0%{?rhel} >= 7
-install -D -m 0644 %SOURCE9 %{buildroot}%{_unitdir}/dtlogin.service
-%endif
+%{__install} -D -m 0644 %SOURCE1 %{buildroot}%{_sysconfdir}/ld.so.conf.d/dt.conf
+%{__install} -D -m 0755 %SOURCE2 %{buildroot}%{_sysconfdir}/profile.d/dt.sh
+%{__install} -D -m 0755 %SOURCE3 %{buildroot}%{_sysconfdir}/profile.d/dt.csh
+%{__install} -D -m 0600 contrib/xinetd/ttdbserver %{buildroot}%{_sysconfdir}/xinetd.d/ttdbserver
+%{__install} -D -m 0600 contrib/xinetd/cmsd %{buildroot}%{_sysconfdir}/xinetd.d/cmsd
+%{__install} -D -m 0600 %SOURCE4 %{buildroot}%{_sysconfdir}/xinetd.d/dtspc
+%{__install} -D -m 0644 contrib/desktopentry/cde.desktop %{buildroot}%{_datadir}/xsessions/cde.desktop
+%{__install} -D -m 0644 %SOURCE5 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.alias
+%{__install} -D -m 0644 %SOURCE6 %{buildroot}%{_sysconfdir}/dt/config/xfonts/C/fonts.dir
+%{__install} -D -m 0644 %SOURCE7 %{buildroot}%{_unitdir}/dtlogin.service
 
 # Create terminfo file for dtterm
 pushd programs/dtterm
 ./terminfoCreate < terminfoChecklist > dtterm.terminfo
 tic dtterm.terminfo
-install -D -m 0644 dtterm %{buildroot}%{_datadir}/terminfo/d/dtterm
+%{__install} -D -m 0644 dtterm %{buildroot}%{_datadir}/terminfo/d/dtterm
 popd
-%endif
 
 %clean
 rm -rf %{buildroot}
 
 %post
-PATH=/bin:/usr/bin
+# Specific permissions required on some things
+chmod 2555 %{_bindir}/dtmail
+chmod 2555 %{_bindir}/dtterm
+
+PATH=/bin:/usr/bin/
 
 # Add 'dtspc' line to /etc/services
 grep -qE "^dtspc" /etc/services >/dev/null 2>&1
@@ -247,34 +153,13 @@ else
     echo "RPCBIND_ARGS=\"-i\"" >> /etc/sysconfig/rpcbind
 fi
 
-# Tell users what needs to happen once they have installed
-echo
-echo
-echo "***************************************"
-echo "* Important postinstall steps for CDE *"
-echo "***************************************"
-echo
-echo "1) Enable and start rpcbind:"
-if [ -x /usr/bin/systemctl ]; then
-    echo "   systemctl enable rpcbind.service"
-    echo "   systemctl start rpcbind.service"
-else
-    echo "   chkconfig rpcbind on"
-    echo "   service rpcbind start"
-fi
-echo
-echo "2) Enable and start xinetd:"
-if [ -x /usr/bin/systemctl ]; then
-    echo "   systemctl enable xinetd.service"
-    echo "   systemctl start xinetd.service"
-else
-    echo "   chkconfig xinetd on"
-    echo "   service xinetd start"
-fi
-echo
-echo
+%systemd_post rpcbind.service
+%systemd_post xinetd.service
 
 %postun
+%systemd_postun_with_restart rpcbind.service
+%systemd_postun_with_restart xinetd.service
+
 PATH=/bin:/usr/bin
 TMPDIR="$(mktemp -d)"
 
@@ -288,10 +173,20 @@ fi
 rm -rf $TMPDIR
 
 %files
+%exclude %dir %{_prefix}/lib/.build-id
 %defattr(-,root,root,-)
-%doc CONTRIBUTORS COPYING README copyright HISTORY
-%{_prefix}/dt
-%attr(1777, root, root) %{_localstatedir}/dt
+%doc CONTRIBUTORS COPYING README.md copyright HISTORY
+%dir %{_prefix}/app-defaults
+%dir %{_prefix}/appconfig
+%dir %{_prefix}/config
+%dir %{_prefix}/infolib
+%dir %{_bindir}
+%dir %{_includedir}
+%dir %{_libexecdir}
+%dir %{_libdir}
+%dir %{_exec_prefix}/lib
+%{_prefix}/palettes
+%dir %{_datadir}
 %config %{_sysconfdir}/ld.so.conf.d/dt.conf
 %config %{_sysconfdir}/profile.d/dt.sh
 %config %{_sysconfdir}/profile.d/dt.csh
@@ -299,17 +194,16 @@ rm -rf $TMPDIR
 %config %{_sysconfdir}/xinetd.d/cmsd
 %config %{_sysconfdir}/xinetd.d/dtspc
 %config %{_sysconfdir}/xinetd.d/ttdbserver
-%config %{_sysconfdir}/dt/config/xfonts/C/fonts.alias
-%config %{_sysconfdir}/dt/config/xfonts/C/fonts.dir
-%{_datadir}/xsessions
-%if "%{_distribution}" == "fedora" || "%{_distribution}" == "rhel" || "%{_distribution}" == "epel"
-%{_datadir}/terminfo
-%endif
-%if 0%{?rhel} >= 7
+%config %{_sysconfdir}/cde/fontaliases/fonts.alias
 %{_unitdir}/dtlogin.service
-%endif
 
 %changelog
+* Tue Aug 30 2022 Trung Le <trung.le@ruby-journal.com> - 2.5.0a-0
+- Upgrade to CDE 2.5.0a
+- Remove support for RHEL
+- Remove support for CentOS
+- Remove support for Fedora 34 or older
+
 * Wed Aug 22 2018 David Cantrell <dcantrell@redhat.com> - 2.3.0-2
 - Conditionalize the BR on rpcgen for only recent systems
 

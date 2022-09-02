@@ -11,25 +11,15 @@ Install the .src.rpm file, and in your rpmbuild directory's `SPECS` dir (e.g.
 will be able to install the rpm from your rpmbuild directory's RPMS dir.
 
 2) Make sure rpcbind is running:
-       RHEL or CentOS 7.x:
-           systemctl enable rpcbind.service
-           systemctl start rpcbind.service
-
-       RHEL or CentOS 6.x:
-           chkconfig enable rpcbind
-           service rpcbind start
+       systemctl enable rpcbind.service
+       systemctl start rpcbind.service
 
    NOTE: rpcbind should be running with "-i" as an argument.  This is set
    in /etc/sysconfig/rpcbind by the RPM %post scriptlet.
 
 3) Make sure xinetd is running:
-       RHEL or CentOS 7.x:
-           systemctl enable xinetd.service
-           systemctl start xinetd.service
-
-       RHEL or CentOS 6.x:
-           chkconfig enable xinetd
-           service xinetd start
+       systemctl enable xinetd.service
+       systemctl start xinetd.service
 
 4) You probably want to disable the firewall or figure out which ports to
    poke holes for.

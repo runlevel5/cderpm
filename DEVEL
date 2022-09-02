@@ -23,7 +23,7 @@ You can build the RPM directly on your host system by typing:
 
 Note this will build on whatever system you are currently running and the
 expectation is that you are using an RPM-based system, preferably Fedora,
-RHEL, or CentOS.  Anything else I do not currently support, but I am more
+or RHEL.  Anything else I do not currently support, but I am more
 than happy to accept patches.
 
 
@@ -32,11 +32,11 @@ BUILD AN SRPM AND USE MOCK
 A better way to build once you get a comfortable release point is to build in
 mock(1).  This is a chroot build jail that allows you to target other RPM-based
 systems while not necessarily running the same version.  For example, on my
-system running RHEL, I can build for Fedora or CentOS.  Or the other way around.
+system running RHEL, I can build for Fedora.  Or the other way around.
 
 To get started, initialize the mock build root:
 
-    mock -r centos-7-x86_64 --init
+    mock -r fedora-36-x86_64 --init
 
 Now build the source RPM (SRPM):
 
@@ -44,12 +44,12 @@ Now build the source RPM (SRPM):
 
 Now build that SRPM in mock:
 
-    mock -r centos-7-x86_64 rebuild *.src.rpm
+    mock -r fedora-36-x86_64 rebuild *.src.rpm
 
 The rebuild command will clean and initialize the root tree as well, in theory.
 To remove or clean the build root, run:
 
-    mock -r centos-7-x86_64 --clean
+    mock -r fedora-36-x86_64 --clean
 
 It's a good idea to start with --clean first and then do --init.
 
